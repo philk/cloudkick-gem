@@ -34,10 +34,24 @@ module Cloudkick
     end
 
     def check(type=nil)
-      resp, data = access_token.get("/1.0/query/node/#{@id}/check/#{type}")
+      resp, data = access_token.get("/2.0/node/#{@id}/check/#{type}")
 
       Crack::JSON.parse(data)
     end
+
+    def tag(tag_name, create=true)
+      escaped = URI.escape(tag_name)
+      resp, data = access_token.post("/2.0/node/#{@id}/add_tag?name=#{escaped}")
+      # TODO: Do something with the data
+      p resp
+      p data
+    end
+
+    def disable!
+      resp, data = access_token.post("/2.0/node/#{@id}/disable")
+      # TODO: Do stuff with this data
+    end
+
   end
 
   class Nodes < Base
@@ -56,13 +70,13 @@ module Cloudkick
     def get
       if @query
         escaped = URI.escape(@query)
-        resp, data = access_token.get("/1.0/query/nodes?query=#{escaped}")
+        resp, data = access_token.get("/2.0/nodes?query=#{escaped}")
       else
-        resp, data = access_token.get("/1.0/query/nodes")        
+        resp, data = access_token.get("/2.0/nodes")        
       end
 
       hash = Crack::JSON.parse(data)
-      nodes = hash.map do |node|
+      nodes = hash["items"].map do |node|
         Node.new(node['agent_state'], node['color'], node['id'],
                  node['ipaddress'], node['name'], node['provider_id'],
                  node['provider_name'], node['status'], node['tags'])
@@ -70,4 +84,5 @@ module Cloudkick
     end
 
   end
+
 end
