@@ -43,6 +43,8 @@ module Cloudkick
     def get(type, query=nil)
       if type == 'nodes'
         Cloudkick::Nodes.new(query)
+      elsif type == "monitors"
+        Cloudkick::Monitors.new(query)
       end
     end
   end
